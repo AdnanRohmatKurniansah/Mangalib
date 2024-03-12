@@ -1,5 +1,5 @@
-import { useEffect } from "react"
-import { Link, useParams } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { Link, useLocation, useParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { detailComic } from "../libs/api"
 import { DetailComic } from "../utils/types"
@@ -11,6 +11,9 @@ const Comic = () => {
   const { slug } = useParams<{ slug: string }>()
   const numberOfSkeletons = 8;
   const skeletonArray = Array.from({ length: numberOfSkeletons }, (_, i) => i + 1);
+  const location = useLocation()
+  const [desc, setDesc] = useState(null)
+  const descState = location.state
 
   const { data: detail, isLoading, isError } = useQuery<DetailComic, Error>({
     queryKey: ['detail', slug],
@@ -23,10 +26,11 @@ const Comic = () => {
   })
 
   useEffect(() => {
+    setDesc(descState)
     if (isError) {
       console.error("Error fetching detail")
     }
-  }, [isError])
+  }, [isError, descState])
 
   if (isLoading) return (
     <ComicLoader skeletonArray={skeletonArray} />
@@ -76,10 +80,11 @@ const Comic = () => {
                   <span>:</span>
                   <span className="ml-3 w-2/3">{detail.rating}</span>
                 </li>
-                {/* <li className="flex items-center mb-2">
+                <li className="flex items-center mb-2">
                   <span className="w-1/3 text-left font-bold">Deskripsi</span>
-                  <span>: {.desc}</span>
-                </li> */}
+                  <span>:</span>
+                  <span className="ml-3 w-2/3">{desc == null ? "Tidak ada deskripsi komik ini" : desc }</span>
+                </li>
               </ul>
             </div>
           </div>

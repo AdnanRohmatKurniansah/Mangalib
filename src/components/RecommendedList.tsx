@@ -36,7 +36,7 @@ const RecommendedList = () => {
                     <Text>{recommended.type}</Text>
                   </div>
               </div>
-              <Link className="bg-orange-400 mx-3 font-bold text-white mb-3 hover:bg-orange-500 p-2 rounded-md text-center" to={`/comic${recommended.endpoint}`}>
+              <Link state={recommended.desc} className="bg-orange-400 mx-3 font-bold text-white mb-3 hover:bg-orange-500 p-2 rounded-md text-center" to={`/comic${recommended.endpoint}`}>
                 Read
               </Link>
             </Card>
