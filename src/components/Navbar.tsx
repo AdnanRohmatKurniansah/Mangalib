@@ -14,7 +14,7 @@ import {
   useBreakpointValue,
   useDisclosure,
   Image,
-  // Input
+  Input
 } from '@chakra-ui/react'
 import {
   HamburgerIcon,
@@ -22,10 +22,24 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
 } from '@chakra-ui/icons'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 export default function Navbar() {
+  const [keyword, setKeyword] = useState("")
   const { isOpen, onToggle } = useDisclosure()
+  const navigate = useNavigate()
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target
+    setKeyword(value)
+  }
+
+  const searchHandle: React.FormEventHandler<HTMLFormElement> = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    navigate(`/comic/search/${keyword}`)
+  }
+
 
   return (
     <Box className='font-bold'>
@@ -53,7 +67,7 @@ export default function Navbar() {
         <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
           <Image width={'30px'} src="/images/logo.png" />
           <Text
-          className='justify-between mt-1 ml-2'
+            className='justify-between mt-1 ml-2'
             textAlign={useBreakpointValue({ base: 'center', md: 'left' })}
             fontFamily={'heading'}
             fontSize={'x-large'}
@@ -68,28 +82,22 @@ export default function Navbar() {
           </Flex>
         </Flex>
 
-        {/* <Stack mr={3}>
-          <Input placeholder='Name..' type='text' />
-        </Stack> */}
         <Stack
+          width={'max-content'}
           flex={{ base: 1, md: 0 }}
           justify={'flex-end'}
           direction={'row'}
           spacing={6}>
-          <Button
-            as={'a'}
-            display={{ base: 'none', md: 'inline-flex' }}
-            fontSize={'sm'}
-            fontWeight={600}
-            color={'white'}
-            bg={'orange.400'}
-            href={'#'}
-            _hover={{
-              bg: 'orange.300',
-            }}>
-            Search
-          </Button>
+          <form onSubmit={searchHandle}>
+          <Flex display={{ base: 'none', md: 'flex' }}>
+            <Input value={keyword} width={'300px'} onChange={handleChange} bg={'white'} placeholder="mangalib" />
+            <Button ml="2" colorScheme="orange" type="submit">
+              Search
+            </Button>
+          </Flex>
+          </form>
         </Stack>
+
       </Flex>
       <Flex
         className='overflow-x-auto'
@@ -122,6 +130,16 @@ export default function Navbar() {
       <Collapse in={isOpen} animateOpacity>
         <MobileNav /> 
       </Collapse>
+      {useBreakpointValue({ base: true, md: false }) && (
+        <form onSubmit={searchHandle}>
+        <Flex w={'100%'} p={4} align={'center'} justify={'center'}>
+            <Input value={keyword} onChange={handleChange} bg={'white'} placeholder="mangalib" />
+            <Button type='submit' ml="2" colorScheme="orange">
+              Search
+            </Button>
+        </Flex>
+        </form>
+      )}
     </Box>
   )
 }

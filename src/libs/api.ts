@@ -44,3 +44,12 @@ export const chapterList = async (slug: string) => {
     return error
   }
 }
+
+export const searchComic = async (keyword: string) => {
+  try {
+    const response = await axiosInstance.get(`/comic/search/${keyword}`)
+    return response.data
+  } catch (error) {
+    return error
+  }
+}

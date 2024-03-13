@@ -8,6 +8,7 @@ import Comic from './pages/Comic.tsx'
 import NotFound from './NotFound.tsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ListChapter from './pages/ListChapter.tsx'
+import SearchComic from './pages/SearchComic.tsx'
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: '/comic/ch/:slug',
     element: <ListChapter />
+  },
+  {
+    path: '/comic/search/:keyword',
+    element: <SearchComic />
   },
   {
     path: '*',

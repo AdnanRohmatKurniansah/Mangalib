@@ -32,22 +32,23 @@ const ListChapter = () => {
   const lastPart = partsPath[partsPath.length - 2] 
   
   const getChapterInfo = (chapterString: string, lastChapterString: string) => {
-    const regex = /^(.*-chapter-)(\d+)$/
-    const matchChapter = chapterString.match(regex)
-    const matchLastChapter = lastChapterString ? lastChapterString.match(regex) : null
-
+    const regex = /^(.*-chapter-)(\d+(?:\.\d+)?)/; // Regex untuk mencocokkan nomor chapter dengan atau tanpa pecahan
+    const matchChapter = chapterString.match(regex);
+    const matchLastChapter = lastChapterString ? lastChapterString.match(regex) : null;
+  
     if (matchChapter) {
-        const chapterName = matchChapter[1]
-        const chapterNumber = parseInt(matchChapter[2], 10)
-        const lastChapterNumber = matchLastChapter == null ? null : parseInt(matchLastChapter[2], 10)
-        if (lastChapter > 1) {
-          return { chapterName, chapterNumber, lastChapterNumber: lastChapter }
-        }
-        return { chapterName, chapterNumber, lastChapterNumber }
+      const chapterName = matchChapter[1];
+      const chapterNumber = parseFloat(matchChapter[2]); // Menggunakan parseFloat untuk mengambil nomor chapter dengan atau tanpa pecahan
+      const lastChapterNumber = matchLastChapter == null ? null : parseFloat(matchLastChapter[2]);
+      if (lastChapter > 1) {
+        return { chapterName, chapterNumber, lastChapterNumber: lastChapter };
+      }
+      return { chapterName, chapterNumber, lastChapterNumber };
     } else {
-        return { chapterName: null, chapterNumber: 0, lastChapterNumber: 0 }
+      return { chapterName: null, chapterNumber: 0, lastChapterNumber: 0 };
     }
   }
+  
 
   const { chapterName, chapterNumber, lastChapterNumber } = getChapterInfo(lastPart, lastChapterPart)
 
@@ -65,6 +66,50 @@ const ListChapter = () => {
 
   if (!chapter || isError) {
     return <div>No data</div>
+  }
+
+  const getNextChapterNumber = () => {
+    if (chapterNumber < lastChapter) {
+      let nextChapterNumber;
+      if (chapterNumber % 1 === 0) {
+        // Jika nomor chapter adalah bilangan bulat
+        nextChapterNumber = chapterNumber + 1;
+      } else {
+        // Jika nomor chapter adalah pecahan
+        const decimalPart = Number((chapterNumber % 1).toFixed(1)); // Mengambil angka desimal
+        if (decimalPart < 0.9) {
+          // Jika angka desimal kurang dari 0.9, tambahkan 0.1
+          nextChapterNumber = chapterNumber + 0.1;
+        } else {
+          // Jika angka desimal sudah 0.9, tambahkan 1 untuk melompat ke chapter berikutnya
+          nextChapterNumber = Math.ceil(chapterNumber);
+        }
+      }
+      return nextChapterNumber.toFixed(1); // Mengembalikan nomor chapter dengan satu digit desimal
+    }
+    return null; // Jika nomor chapter sudah mencapai yang terakhir
+  }
+  
+  const getPrevChapterNumber = () => {
+    if (chapterNumber > 1) {
+      let prevChapterNumber;
+      if (chapterNumber % 1 === 0) {
+        // Jika nomor chapter adalah bilangan bulat
+        prevChapterNumber = chapterNumber - 1;
+      } else {
+        // Jika nomor chapter adalah pecahan
+        const decimalPart = Number((chapterNumber % 1).toFixed(1)); // Mengambil angka desimal
+        if (decimalPart > 0.1) {
+          // Jika angka desimal lebih besar dari 0.1, kurangi 0.1
+          prevChapterNumber = chapterNumber - 0.1;
+        } else {
+          // Jika angka desimal sudah 0.1, kurangi 1 untuk melompat ke chapter sebelumnya
+          prevChapterNumber = Math.floor(chapterNumber);
+        }
+      }
+      return prevChapterNumber.toFixed(1); // Mengembalikan nomor chapter dengan satu digit desimal
+    }
+    return null; // Jika nomor chapter sudah di awal
   }
 
   const addSpinner = () => (
@@ -95,12 +140,12 @@ const ListChapter = () => {
             </div>
             <div className="mt-5 gap-4 flex justify-center">
               {chapterNumber > 1 && (
-                <Link to={`/comic/ch/${chapterName}${chapterNumber - 1}/`}>
+                <Link to={`/comic/ch/${chapterName}${getPrevChapterNumber()}/`}>
                   <Button>Chapter Sebelumnya</Button>
                 </Link>
               )}
               {chapterNumber < lastChapter && (
-                <Link to={`/comic/ch/${chapterName}${chapterNumber + 1}/`}>
+                <Link to={`/comic/ch/${chapterName}${getNextChapterNumber()}/`}>
                   <Button>Chapter Selanjutnya</Button>
                 </Link>
               )}
